@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-job
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation #, hook-succeeded
+  labels:
+    app.kubernetes.io/part-of: {{ .Release.Name }}-chart
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      name: {{ .Chart.Name | quote }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      restartPolicy: Never
+      containers:
+        - name: initialize-database
+          image: "quay.io/wpernath/kustomize-ubi:v4.5.2"
+          env:
+            - name: NAMESPACE
+              value: {{ .Release.Namespace | quote }}
+            - name: NAME
+              value: {{ .Release.Name }}
+          command: 
+          - bin/bash
+          - -c
+          - |
+            SERVICE_URL=${NAME}.${NAMESPACE}.svc/person
+            echo "SERVICE_URL: http://${SERVICE_URL}"
+            echo "Waiting for the service to be successfully rolled out..."
+
+            # wait until the service has been successfully rolled out
+            #kubectl wait --for=condition=Ready Pod -l deployment={{ .Release.Name }} 
+
+            NUM_PERSONS=$(curl -s http://$SERVICE_URL/count)
+
+            if [ $NUM_PERSONS -eq 0 ]; then
+              echo "There are no persons in the database, filling some"
+
+              http -I --json POST ${SERVICE_URL} firstName=Carlos lastName=Santana salutation=Mr
+              http -I --json POST ${SERVICE_URL} firstName=Joe lastName=Cocker salutation=Mr
+              http -I --json POST ${SERVICE_URL} firstName=Eric lastName=Clapton salutation=Mr
+              http -I --json POST ${SERVICE_URL} firstName=Kurt lastName=Cobain salutation=Mr
+
+            else
+              echo "There are already $NUM_PERSONS persons in the database."
+              http -I --pretty format ${SERVICE_URL} 
+            fi

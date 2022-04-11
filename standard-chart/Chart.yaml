@@ -1,0 +1,12 @@
+apiVersion: v2
+name: person-service
+description: A helm chart based on the example of the book "Getting GitOps"
+home: https://github.com/wpernath/book-example
+type: application
+version: 0.0.11 
+appVersion: "v1.8.10-native"
+sources:
+    - https://github.com/wpernath/book-example
+maintainers:
+    - name: Wanja Pernath
+      email: wpernath@redhat.com

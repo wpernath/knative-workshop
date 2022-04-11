@@ -1,0 +1,52 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  template:
+    metadata:
+      annotations:
+        # which metric to use to decide about scaling
+        autoscaling.knative.dev/metric: {{ .Values.deployment.metric | quote }}
+
+        # How many concurrent requests per pod until scaling up
+        autoscaling.knative.dev/target: {{ .Values.deployment.target | quote }}
+        
+        # after reaching x% create new pods
+        autoscaling.knative.dev/targetUtilizationPercentage: {{ .Values.deployment.targetUtilization | quote }}
+
+        # scaling parameteres 
+        autoscaling.knative.dev/max-scale: {{ .Values.deployment.maxScale | quote }}
+        autoscaling.knative.dev/min-scale: {{ .Values.deployment.minScale | quote }}
+
+        # scale back to zero if no requests come in within 15s
+        autoscaling.knative.dev/window: "60s"
+
+        # how many pods should be started initially 
+        autoscaling.knative.dev/initial-scale: "1"
+
+        # how long to wait until scaling down
+        autoscaling.knative.dev/scale-down-delay: "15s"
+      labels:
+        deployment: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: person-service-api
+        image: quay.io/wpernath/person-service:v1.8.10-{{ .Values.deployment.tag }}
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-config
+          - secretRef:
+              name: {{ .Release.Name }}-db-pguser-{{ .Release.Name }}-db
+            prefix: DB_
+        resources: 
+          limits:
+            cpu: 500m
+            memory: 256Mi
+          requests:
+            cpu: 10m
+            memory: 128Mi          
+

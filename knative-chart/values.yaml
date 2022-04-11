@@ -1,0 +1,11 @@
+deployment:
+  tag: native
+  metric: concurrency
+  target: 10
+  targetUtilization: 75
+  minScale: 0
+  maxScale: 15
+
+
+config:
+  greeting: This is a knative service chart
