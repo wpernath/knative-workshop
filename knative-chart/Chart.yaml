@@ -4,7 +4,7 @@ description: A better helm chart for the basic person-service used as example in
 home: https://github.com/wpernath/book-example
 type: application
 version: 0.0.11 
-appVersion: "v1.8.9"
+appVersion: "v1.8.10"
 sources:
     - https://github.com/wpernath/book-example
 maintainers:

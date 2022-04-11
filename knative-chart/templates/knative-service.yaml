@@ -36,9 +36,10 @@ spec:
         ports:
         - containerPort: 8080
           protocol: TCP
+        env:
+          - name: APP_GREETING
+            value: "This is the knative chart!"
         envFrom:
-          - configMapRef:
-              name: {{ .Release.Name }}-config
           - secretRef:
               name: {{ .Release.Name }}-db-pguser-{{ .Release.Name }}-db
             prefix: DB_
