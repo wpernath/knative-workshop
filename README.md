@@ -22,7 +22,7 @@ This is a simple demo project to demonstrate knative-serving. If you want to fol
 - Deploy a new version
 
 ```bash
-kn service update ksvc-ps1 --image=quay.io/wpernath/person-service:v1.8.10-jvm --env APP_GREETING="We are now in JVM mode"
+kn service update ksvc-ps1-deployment --image=quay.io/wpernath/person-service:v1.8.10-jvm --env APP_GREETING="We are now in JVM mode"
 kn revision list
 https --verify=no ....
 ```
@@ -30,23 +30,23 @@ https --verify=no ....
 - Tag the two (useable) revisions
 
 ```bash
-kn service update ksvc-ps1 --tag=ksvc-ps1-00003=jvm
-kn service update ksvc-ps1 --tag=ksvc-ps1-00002=native
+kn service update ksvc-ps1-deployment --tag=ksvc-ps1-deployment-00003=jvm
+kn service update ksvc-ps1-deployment --tag=ksvc-ps1-deployment-00002=native
 kn revision list
 ```
 
 - Now update the service to get only one or the other tag (A/B deployments)
 
 ```bash
-kn service update ksvc-ps1 --traffic native=100,jvm=0
-kn service update ksvc-ps1 --traffic native=0,jvm=100
+kn service update ksvc-ps1-deployment --traffic native=100,jvm=0
+kn service update ksvc-ps1-deployment --traffic native=0,jvm=100
 ```
 
 ## Canary Deployments
 - The only difference to A/B is that we are going to have traffic splits between the old and the new version
 
 ```bash
-kn service update ksvc-ps1 --traffic native=80,jvm=20
+kn service update ksvc-ps1-deployment --traffic native=80,jvm=20
 watch -n1 http ....
 ```
 
