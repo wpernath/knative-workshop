@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/part-of: {{ .Release.Name }}-chart
 spec: 
-  postgresVersion: 14
+  postgresVersion: 15
   instances:
     - name: instance1
       dataVolumeClaimSpec:
@@ -25,3 +25,9 @@ spec:
             resources:
               requests:
                 storage: 1Gi
+  # make sure that the demo user has access to the public schema
+  users:
+    - name: {{ .Release.Name }}-db
+      databases:
+        - {{ .Release.Name }}-db
+      options: 'SUPERUSER'
